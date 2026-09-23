@@ -482,3 +482,12 @@ button {
         max-width: none
     }
 }
+@media(max-width:500px) {
+    .topbar {
+        padding: 12px 16px;
+        gap: 12px;
+        display: flex;
+        flex-wrap: balance;
+        height: fit-content;
+    }
+}
