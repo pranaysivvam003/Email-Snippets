@@ -3,5 +3,37 @@ const collections:any={users:User,tabs:Tab,snippets:Snippet,tools:Tool};
 async function admin(req:NextRequest){const s=await sessionFromRequest(req);return s?.role==='admin'?s:null}
 type Context={params:Promise<{collection:string}>};
 export async function POST(req:NextRequest,{params}:Context){if(!await admin(req))return NextResponse.json({error:'Forbidden'},{status:403});const {collection}=await params;const Model=collections[collection];if(!Model)return NextResponse.json({error:'Unknown collection'},{status:404});let body=await req.json();if(collection==='users'){body.username=body.username.toLowerCase();body.passwordHash=await bcrypt.hash(body.password||'ChangeMe123!',12);delete body.password}if(collection==='tabs'&&!body.slug)body.slug=body.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');await db;return NextResponse.json(await Model.create(body),{status:201})}
-export async function PUT(req:NextRequest,{params}:Context){if(!await admin(req))return NextResponse.json({error:'Forbidden'},{status:403});const {collection}=await params;const Model=collections[collection];const {id,...body}=await req.json();if(collection==='users'&&body.password){body.passwordHash=await bcrypt.hash(body.password,12);delete body.password}await db;return NextResponse.json(await Model.findByIdAndUpdate(id,body,{new:true}))}
+export async function PUT(req: NextRequest, { params }: Context) {
+  if (!await admin(req)) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  const { collection } = await params;
+  const Model = collections[collection];
+
+  if (!Model) {
+    return NextResponse.json({ error: 'Unknown collection' }, { status: 404 });
+  }
+
+  const { _id: id, ...body } = await req.json();
+
+  if (!id) {
+    return NextResponse.json({ error: 'Missing record ID' }, { status: 400 });
+  }
+
+  if (collection === 'users' && body.password) {
+    body.passwordHash = await bcrypt.hash(body.password, 12);
+    delete body.password;
+  }
+
+  await db;
+
+  const updated = await Model.findByIdAndUpdate(id, body, { new: true });
+
+  if (!updated) {
+    return NextResponse.json({ error: 'Record not found' }, { status: 404 });
+  }
+
+  return NextResponse.json(updated);
+}
 export async function DELETE(req:NextRequest,{params}:Context){if(!await admin(req))return NextResponse.json({error:'Forbidden'},{status:403});const {collection}=await params;const Model=collections[collection];const id=new URL(req.url).searchParams.get('id');await db;await Model.findByIdAndDelete(id);return NextResponse.json({ok:true})}
