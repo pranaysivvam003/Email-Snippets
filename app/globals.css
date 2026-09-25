@@ -142,7 +142,24 @@ button {
     background: #20345b;
     color: #fff
 }
+#tabLink {
+    display: flex;
+    width: 100%;
+    border: 0;
+    background: #ffffff;
+    color: #0b1730;
+    padding: 11px;
+    border-radius: 8px;
+    text-align: left;
+    margin: 2px 0;
+    text-decoration: none;
+}
 
+#tabLink.active,
+#tabLink:hover {
+    background: #20345b;
+    color: #fff
+}
 .sideFoot {
     position: fixed;
     bottom: 18px;
@@ -174,10 +191,13 @@ button {
 }
 
 .headerLink {
-    color: var(--blue);
+    color: var(--paper);
+    background-color: var(--ink);
     font-weight: 700;
     text-decoration: none;
-    white-space: nowrap
+    white-space: nowrap;
+    padding: 10px 14px;
+    border-radius: 6px;
 }
 
 .avatar {
